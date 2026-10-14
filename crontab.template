@@ -1,0 +1,8 @@
+# Crontab template. Placeholders replaced by entrypoint.sh:
+#   __SCHEDULE__      from $CRON_SCHEDULE       — FULL run (both tracks)
+#   __FAST_SCHEDULE__ from $CRON_FAST_SCHEDULE  — fast SIGNALS-ONLY lane
+# "Be first" is a latency goal: SEC filings, IR feeds and wires move in
+# hours; PubMed moves in days. The fast lane polls only the signals track
+# at a tight cadence; the full run does everything.
+__SCHEDULE__ root . /app/.cron_env; cd /app && RUN_MODE=all /usr/local/bin/Rscript R/run_all.R > /proc/1/fd/1 2> /proc/1/fd/2
+__FAST_SCHEDULE__ root . /app/.cron_env; cd /app && RUN_MODE=signals /usr/local/bin/Rscript R/run_all.R > /proc/1/fd/1 2> /proc/1/fd/2

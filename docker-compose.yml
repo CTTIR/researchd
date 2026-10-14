@@ -1,0 +1,86 @@
+# ============================================================
+# docker-compose.yml — three services sharing the db volume:
+#   pipeline  : R engine, cron-fetches & writes records
+#   web       : FastAPI — RSS feeds (open) + dashboard (pw + 2FA)
+#   scheduler : per-question email distribution on each cadence
+#
+#   docker compose up -d --build
+#   docker compose logs -f web         # auth / feed traffic
+#   docker compose logs -f scheduler   # email dispatch
+# ============================================================
+services:
+
+  pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        TZ: ${TZ:-Europe/Berlin}
+    image: research-pipeline:latest
+    container_name: research-pipeline
+    restart: unless-stopped
+    environment:
+      CRON_SCHEDULE: "${CRON_SCHEDULE:-0 6 * * *}"            # full run (both tracks)
+      CRON_FAST_SCHEDULE: "${CRON_FAST_SCHEDULE:-15 * * * *}"  # hourly signals-only fast lane
+      RUN_ON_START: "${RUN_ON_START:-0}"
+      TZ: "${TZ:-Europe/Berlin}"
+      APP_SECRET_KEY: "${APP_SECRET_KEY:?set APP_SECRET_KEY}"  # to decrypt per-question keys
+      ENTREZ_KEY: "${ENTREZ_KEY:-}"
+      ZOTERO_KEY: "${ZOTERO_KEY:-}"
+      CONTACT_EMAIL: "${CONTACT_EMAIL:-}"
+    volumes:
+      - ./db:/app/db
+      - ./digests:/app/digests
+      - ./config:/app/config
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    image: research-web:latest
+    container_name: research-web
+    restart: unless-stopped
+    environment:
+      DB_PATH: "/app/db/pipeline.sqlite"
+      BASE_URL: "${BASE_URL:-}"
+      FEED_LIMIT: "${FEED_LIMIT:-100}"
+      APP_SECRET_KEY: "${APP_SECRET_KEY:?set APP_SECRET_KEY}"  # encrypts API keys at rest
+      SECURE_COOKIE: "${SECURE_COOKIE:-1}"   # set 0 if serving plain HTTP (no TLS yet)
+      # Bearer token for POST /api/ingest (n8n and other machine writers).
+      # Empty -> the endpoint stays disabled (503); it never accepts an
+      # unauthenticated write.
+      INGEST_TOKEN: "${INGEST_TOKEN:-}"
+      # Bearer token for /api/v1, the surface the researchR R client uses.
+      # Empty -> that surface stays disabled (503).
+      API_TOKEN: "${API_TOKEN:-}"
+    volumes:
+      - ./db:/app/db
+    ports:
+      - "${WEB_PORT:-8000}:8000"
+    depends_on:
+      - pipeline
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.scheduler
+    image: research-scheduler:latest
+    container_name: research-scheduler
+    restart: unless-stopped
+    environment:
+      DB_PATH: "/app/db/pipeline.sqlite"
+      CHECK_INTERVAL: "${CHECK_INTERVAL:-900}"
+      TZ: "${TZ:-Europe/Berlin}"
+      SMTP_HOST: "${SMTP_HOST:-}"
+      SMTP_PORT: "${SMTP_PORT:-587}"
+      SMTP_USER: "${SMTP_USER:-}"
+      SMTP_FROM: "${SMTP_FROM:-}"
+      SMTP_TLS: "${SMTP_TLS:-starttls}"
+      EMAIL_PW: "${EMAIL_PW:-}"
+    volumes:
+      - ./db:/app/db
+    depends_on:
+      - web
+
+# Put `web` behind a reverse proxy (Caddy/Nginx/Traefik) for TLS + a domain.
+# Feeds are intentionally open; the dashboard requires login + TOTP 2FA.

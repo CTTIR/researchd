@@ -1,0 +1,76 @@
+# ============================================================
+# GLOBAL SETTINGS
+# Secrets (passwords, API keys) should ideally come from
+# environment variables, not be committed here. Placeholders
+# below read from env first, fall back to the literal value.
+# ============================================================
+
+paths:
+  db: "db/pipeline.sqlite"
+  digests: "digests"
+
+# Toggle sources on/off. All are free.
+sources:
+  pubmed: true
+  europepmc: true
+  openalex: true
+  semanticscholar: true   # free API; optional key (registration) for higher rate limit
+  crossref: true          # free; catches very-recent articles before PubMed indexing
+  clinicaltrials: true
+  biorxiv: true          # medRxiv + bioRxiv (also partly covered by EuropePMC)
+
+# NCBI E-utilities: an API key raises rate limit 3->10 req/sec.
+# Get one free at https://www.ncbi.nlm.nih.gov/account/settings/
+ncbi:
+  email: "you@example.com"        # required by NCBI etiquette
+  api_key: ""                      # optional but recommended; or set ENTREZ_KEY env var
+
+# Semantic Scholar: works keyless, but a free key raises the rate limit.
+# Request one at https://www.semanticscholar.org/product/api
+semanticscholar:
+  api_key: ""
+
+# Unpaywall: free, but REQUIRES an email parameter on every request.
+# No registration beyond supplying a valid email. Adds OA full-text links.
+unpaywall:
+  email: "you@example.com"
+
+# Polite contact for OpenAlex / Europe PMC / Crossref / Unpaywall etiquette
+contact_email: "you@example.com"
+
+# Ranking weights (max recall: nothing is dropped, only ordered)
+ranking:
+  weight_recency: 1.0
+  weight_source: 0.5
+  weight_relevance: 2.0      # term-overlap score against concept blocks
+  source_priority:           # higher = surfaced earlier
+    clinicaltrials: 3
+    pubmed: 2
+    europepmc: 2
+    semanticscholar: 2
+    crossref: 2
+    biorxiv: 1
+    openalex: 1
+
+# ---- Email delivery (uses the `blastula` package + SMTP) ----
+# For your own SMTP server: 587 = STARTTLS (tls=true), 465 = implicit SSL
+# (ssl=true). Set whichever your server uses.
+email:
+  enabled: true
+  to: "you@example.com"
+  from: "pipeline@example.com"
+  smtp_host: "mail.yourdomain.com"
+  smtp_port: 587
+  smtp_user: "pipeline@yourdomain.com"
+  use_ssl: false       # true for port 465 (implicit SSL)
+  use_starttls: true   # true for port 587 (STARTTLS)
+  # password read from env var EMAIL_PW (do NOT hardcode)
+  smtp_pw_env: "EMAIL_PW"
+
+# ---- Zotero push (via Web API; needs key + library id) ----
+zotero:
+  enabled: true
+  library_type: "user"        # "user" or "group"
+  library_id: ""              # numeric, from zotero.org/settings/keys
+  api_key_env: "ZOTERO_KEY"   # store key in env var
+  collection_per_question: true   # auto-create a collection named after question id

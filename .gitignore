@@ -1,0 +1,33 @@
+# secrets and runtime state
+.env
+db/*.sqlite
+db/*.sqlite-wal
+db/*.sqlite-shm
+db/*.replaced-*
+
+# generated output
+digests/*.html
+digests/*.md
+digests/*.log
+
+# local verification environment (not part of the deployed stack)
+.venv/
+dev/state/tmp/
+
+__pycache__/
+*.pyc
+.Rhistory
+.RData
+
+# Local development and recovery material
+.local-private/
+CLAUDE.md
+AGENTS.md
+.claude/
+.codex/
+dev/state/
+dev/phases/
+dev/audit/
+dev/N8N_INTEGRATION.md
+dev/ARCHITECTURE.md
+dev/ACCESS_AUDIT.md

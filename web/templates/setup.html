@@ -1,0 +1,14 @@
+<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>First-run setup</title><link rel="stylesheet" href="/static/style.css"></head>
+<body><main class="wrap narrow">
+<h1>Create admin account</h1>
+<p class="muted">First-run setup. This creates the single admin user. You'll add
+2-factor authentication right after.</p>
+{% if error %}<p class="err">{{ error }}</p>{% endif %}
+<form method="post" action="/setup">
+  <label>Username</label><input name="username" required autofocus>
+  <label>Password (≥10 chars)</label><input name="password" type="password" required>
+  <label>Confirm password</label><input name="password2" type="password" required>
+  <button type="submit">Create account</button>
+</form></main></body></html>

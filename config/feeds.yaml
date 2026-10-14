@@ -1,0 +1,89 @@
+# ============================================================
+# config/feeds.yaml — curated RSS/Atom starter list.
+#
+# These feed the SIGNALS track. Each feed declares:
+#   url        : the RSS/Atom URL
+#   name       : human label (shown as the "org" on items)
+#   signal_type: how the item is classified
+#                  literature_alert  (journal online-first / latest articles)
+#                  institution       (university / institute / funder press)
+#                  aggregator        (embargoed-research wires)
+#                  trade_press       (pharma/biotech industry news)
+#                  news              (general newspapers / agencies)
+#   confidence : authoritative | reported | unverified
+#                  (journals/institutions = reported: reliable source, but a
+#                   release/alert, not the peer-reviewed paper itself;
+#                   trade/news = unverified: a lead to corroborate)
+#
+# EDIT FREELY. Add the journals and societies specific to YOUR disease
+# areas — that's where the real signal is. The lists below are broad,
+# high-level starters, not exhaustive.
+#
+# Feeds are matched against each question's concept terms (title+summary),
+# so a single broad feed list serves all questions; only matching items
+# are kept. Per-question feed selection is by category (see signal_config).
+# ============================================================
+
+feeds:
+
+  # ---- Journal online-first / latest articles -----------------
+  # Online-first feeds often surface a paper WEEKS before PubMed indexing.
+  # Add the specific journals in your fields — this is the highest-value edit.
+  - { name: "NEJM",                 signal_type: literature_alert, confidence: reported, url: "https://www.nejm.org/action/showFeed?jc=nejm&type=etoc&feed=rss" }
+  - { name: "The Lancet",           signal_type: literature_alert, confidence: reported, url: "https://www.thelancet.com/rssfeed/lancet_online.xml" }
+  - { name: "JAMA",                 signal_type: literature_alert, confidence: reported, url: "https://jamanetwork.com/rss/site_3/67.xml" }
+  - { name: "Nature",               signal_type: literature_alert, confidence: reported, url: "https://www.nature.com/nature.rss" }
+  - { name: "Nature Medicine",      signal_type: literature_alert, confidence: reported, url: "https://www.nature.com/nm.rss" }
+  - { name: "Science",              signal_type: literature_alert, confidence: reported, url: "https://www.science.org/rss/news_current.xml" }
+  - { name: "Cell",                 signal_type: literature_alert, confidence: reported, url: "https://www.cell.com/cell/inpress.rss" }
+  - { name: "BMJ",                  signal_type: literature_alert, confidence: reported, url: "https://www.bmj.com/rss/recent.xml" }
+
+  # ---- Company investor-relations alerts (free, EARLIEST legal signal)
+  # Public biotechs announce topline results to investors before papers,
+  # often before conferences. Most offer a free IR/press RSS feed. These
+  # are the single highest-value feeds to customize: add the specific
+  # companies developing therapies in YOUR disease areas. The examples
+  # below are large-cap placeholders — replace with your real targets.
+  # signal_type 'ir_alert', confidence 'reported' (official company source,
+  # but preliminary/promotional — verify against the SEC 8-K it triggers).
+  - { name: "Roche (investor updates)",     signal_type: ir_alert, confidence: reported, url: "https://www.roche.com/rss/media.xml" }
+  - { name: "Novartis (news)",              signal_type: ir_alert, confidence: reported, url: "https://www.novartis.com/rss/news.xml" }
+  # Add YOUR target companies here, e.g.:
+  # - { name: "<Biotech> IR", signal_type: ir_alert, confidence: reported, url: "https://ir.<biotech>.com/rss/news-releases.xml" }
+
+  # ---- Embargoed-research aggregators (newsroom wires) --------
+  # Break findings the day the embargo lifts — often same-day as publication.
+  - { name: "EurekAlert (Medicine)", signal_type: aggregator, confidence: reported, url: "https://www.eurekalert.org/rss/medicine_health.xml" }
+  - { name: "EurekAlert (Biology)",  signal_type: aggregator, confidence: reported, url: "https://www.eurekalert.org/rss/biology.xml" }
+  - { name: "ScienceDaily (Health)", signal_type: aggregator, confidence: unverified, url: "https://www.sciencedaily.com/rss/health_medicine.xml" }
+
+  # ---- Research institutions / funders ------------------------
+  # Reliable (about their own work), promotional in tone.
+  - { name: "NIH News Releases",     signal_type: institution, confidence: reported, url: "https://www.nih.gov/news-events/news-releases/feed.xml" }
+  - { name: "NIH Director's Blog",   signal_type: institution, confidence: reported, url: "https://directorsblog.nih.gov/feed/" }
+  - { name: "Broad Institute",       signal_type: institution, confidence: reported, url: "https://www.broadinstitute.org/news/rss.xml" }
+  - { name: "Wellcome Trust",        signal_type: institution, confidence: reported, url: "https://wellcome.org/news/rss.xml" }
+
+  # ---- Regulators (official press; EMA closes the "US-only" gap) -----
+  - { name: "EMA News",              signal_type: institution, confidence: reported, url: "https://www.ema.europa.eu/en/rss/news.xml" }
+  - { name: "FDA Press Announcements", signal_type: institution, confidence: reported, url: "https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/press-releases/rss.xml" }
+
+  # ---- Conference societies (press releases around congresses) -------
+  # Real-time late-breakers remain a structural gap (no free feed), but
+  # society press feeds carry the headline results the day they present.
+  - { name: "ASCO Press",            signal_type: conference, confidence: reported, url: "https://society.asco.org/rss.xml" }
+  - { name: "ESMO News",             signal_type: conference, confidence: reported, url: "https://www.esmo.org/rss/newsroom" }
+  - { name: "AHA Newsroom",          signal_type: conference, confidence: reported, url: "https://newsroom.heart.org/rss" }
+
+  # ---- Trade / industry press (pharma pipeline & readouts) ----
+  # Often faster/more accurate on trials than general news. High value.
+  - { name: "STAT News",             signal_type: trade_press, confidence: unverified, url: "https://www.statnews.com/feed/" }
+  - { name: "Endpoints News",        signal_type: trade_press, confidence: unverified, url: "https://endpts.com/feed/" }
+  - { name: "Fierce Biotech",        signal_type: trade_press, confidence: unverified, url: "https://www.fiercebiotech.com/rss/xml" }
+  - { name: "BioPharma Dive",        signal_type: trade_press, confidence: unverified, url: "https://www.biopharmadive.com/feeds/news/" }
+
+  # ---- General news / agencies (downstream; corroboration) ----
+  # Rarely your earliest signal; mostly confirms something already broke.
+  - { name: "Reuters Health",        signal_type: news, confidence: unverified, url: "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best&best-sectors=health" }
+  - { name: "BBC Health",            signal_type: news, confidence: unverified, url: "https://feeds.bbci.co.uk/news/health/rss.xml" }
+  - { name: "Guardian Science",      signal_type: news, confidence: unverified, url: "https://www.theguardian.com/science/rss" }

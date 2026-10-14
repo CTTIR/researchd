@@ -1,0 +1,22 @@
+.env
+.git
+.gitignore
+db/*.sqlite
+digests/*
+*.log
+.Rhistory
+.RData
+README.md
+
+# Local development and recovery material
+.local-private/
+CLAUDE.md
+AGENTS.md
+.claude/
+.codex/
+dev/state/
+dev/phases/
+dev/audit/
+dev/N8N_INTEGRATION.md
+dev/ARCHITECTURE.md
+dev/ACCESS_AUDIT.md
